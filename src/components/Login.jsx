@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import FormInput from './FormInput';
+import AlertMessage from './AlertMessage';
 
 /**
  * Componente: Login
@@ -10,6 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
  *  - Validación en el cliente.
  *  - Peticiones asíncronas con Fetch API.
  *  - Enrutamiento con react-router-dom.
+ *  - Uso de componentes reutilizables con Props (FormInput, AlertMessage).
  */
 export default function Login() {
   // Hook de navegación para redirigir al usuario tras autenticarse con éxito
@@ -66,8 +69,7 @@ export default function Login() {
       setMensajeExito('');
 
       // 2. Petición POST a la API en Node.js/Express
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const respuesta = await fetch(`${API_URL}/api/login`, {
+      const respuesta = await fetch('http://localhost:3000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,46 +119,35 @@ export default function Login() {
         <p className="auth-subtitle">Ingresa tus credenciales para acceder a la plataforma</p>
       </div>
 
-      {/* Renderizado condicional de mensajes de error o éxito */}
-      {error && <div className="alert alert-error">{error}</div>}
-      {mensajeExito && <div className="alert alert-success">{mensajeExito}</div>}
+      {/* AlertMessage recibe por prop 'tipo' y 'mensaje' para mostrar error o éxito */}
+      <AlertMessage tipo="error" mensaje={error} />
+      <AlertMessage tipo="exito" mensaje={mensajeExito} />
 
       <form onSubmit={handleLogin} className="auth-form" noValidate>
-        {/* Campo Correo Electrónico */}
-        <div className="form-group">
-          <label htmlFor="correo" className="form-label">
-            Correo Electrónico
-          </label>
-          <input
-            type="email"
-            id="correo"
-            name="correo"
-            placeholder="ejemplo@universidad.edu.co"
-            value={formData.correo}
-            onChange={handleChange}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        {/* FormInput recibe por props: label, id, name, type, placeholder, value, onChange, disabled */}
+        <FormInput
+          label="Correo Electrónico"
+          id="correo"
+          name="correo"
+          type="email"
+          placeholder="ejemplo@universidad.edu.co"
+          value={formData.correo}
+          onChange={handleChange}
+          disabled={cargando}
+          required
+        />
 
-        {/* Campo Contraseña */}
-        <div className="form-group">
-          <label htmlFor="password" className="form-label">
-            Contraseña
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleChange}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        <FormInput
+          label="Contraseña"
+          id="password"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          value={formData.password}
+          onChange={handleChange}
+          disabled={cargando}
+          required
+        />
 
         {/* Enlace para recuperar contraseña */}
         <div className="form-helper">

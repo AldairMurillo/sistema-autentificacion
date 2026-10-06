@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import FormInput from './FormInput';
+import AlertMessage from './AlertMessage';
 
 /**
  * Componente: RecuperarPassword
@@ -8,6 +10,7 @@ import { Link } from 'react-router-dom';
  *  - Estado simple con useState para un único input.
  *  - Retroalimentación informativa (éxito/error) amigable para el usuario.
  *  - Comunicación asíncrona con el endpoint de recuperación.
+ *  - Uso de componentes reutilizables con Props (FormInput, AlertMessage).
  */
 export default function RecuperarPassword() {
   // Estado para almacenar el correo electrónico ingresado
@@ -42,8 +45,7 @@ export default function RecuperarPassword() {
       setMensajeExito('');
 
       // 2. Envío de petición POST al backend
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const respuesta = await fetch(`${API_URL}/api/recuperar`, {
+      const respuesta = await fetch('http://localhost:3000/api/recuperar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,31 +82,26 @@ export default function RecuperarPassword() {
         </p>
       </div>
 
-      {/* Alertas */}
-      {error && <div className="alert alert-error">{error}</div>}
-      {mensajeExito && <div className="alert alert-success">{mensajeExito}</div>}
+      {/* AlertMessage recibe por prop 'tipo' y 'mensaje' para mostrar error o éxito */}
+      <AlertMessage tipo="error" mensaje={error} />
+      <AlertMessage tipo="exito" mensaje={mensajeExito} />
 
       <form onSubmit={handleRecuperar} className="auth-form" noValidate>
-        {/* Campo Correo */}
-        <div className="form-group">
-          <label htmlFor="correo" className="form-label">
-            Correo Electrónico
-          </label>
-          <input
-            type="email"
-            id="correo"
-            name="correo"
-            placeholder="ejemplo@universidad.edu.co"
-            value={correo}
-            onChange={(e) => {
-              setCorreo(e.target.value);
-              if (error) setError('');
-            }}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        {/* FormInput recibe sus datos por props: label, id, name, type, placeholder, value, onChange, disabled */}
+        <FormInput
+          label="Correo Electrónico"
+          id="correo"
+          name="correo"
+          type="email"
+          placeholder="ejemplo@universidad.edu.co"
+          value={correo}
+          onChange={(e) => {
+            setCorreo(e.target.value);
+            if (error) setError('');
+          }}
+          disabled={cargando}
+          required
+        />
 
         {/* Botón de envío */}
         <button type="submit" className="btn-primary" disabled={cargando}>

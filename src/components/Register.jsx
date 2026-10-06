@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import FormInput from './FormInput';
+import AlertMessage from './AlertMessage';
 
 /**
  * Componente: Register
@@ -9,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
  *  - Validación de coincidencia de contraseñas y longitud mínima en cliente.
  *  - Envío de datos vía POST asíncrono con fetch.
  *  - Retroalimentación visual y redirección guiada al Login tras registro exitoso.
+ *  - Uso de componentes reutilizables con Props (FormInput, AlertMessage).
  */
 export default function Register() {
   const navigate = useNavigate();
@@ -78,8 +81,7 @@ export default function Register() {
       setMensajeExito('');
 
       // 2. Envío de la petición POST a la API
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const respuesta = await fetch(`${API_URL}/api/registro`, {
+      const respuesta = await fetch('http://localhost:3000/api/registro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,82 +129,59 @@ export default function Register() {
         <p className="auth-subtitle">Regístrate para comenzar a usar la plataforma</p>
       </div>
 
-      {/* Alertas de error o éxito */}
-      {error && <div className="alert alert-error">{error}</div>}
-      {mensajeExito && <div className="alert alert-success">{mensajeExito}</div>}
+      {/* AlertMessage recibe por prop 'tipo' y 'mensaje' para mostrar error o éxito */}
+      <AlertMessage tipo="error" mensaje={error} />
+      <AlertMessage tipo="exito" mensaje={mensajeExito} />
 
       <form onSubmit={handleRegister} className="auth-form" noValidate>
-        {/* Campo Nombre Completo */}
-        <div className="form-group">
-          <label htmlFor="nombre" className="form-label">
-            Nombre Completo
-          </label>
-          <input
-            type="text"
-            id="nombre"
-            name="nombre"
-            placeholder="Juan Pérez"
-            value={formData.nombre}
-            onChange={handleChange}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        {/* FormInput recibe sus datos por props: label, id, name, type, placeholder, value, onChange, disabled */}
+        <FormInput
+          label="Nombre Completo"
+          id="nombre"
+          name="nombre"
+          type="text"
+          placeholder="Juan Pérez"
+          value={formData.nombre}
+          onChange={handleChange}
+          disabled={cargando}
+          required
+        />
 
-        {/* Campo Correo */}
-        <div className="form-group">
-          <label htmlFor="correo" className="form-label">
-            Correo Electrónico
-          </label>
-          <input
-            type="email"
-            id="correo"
-            name="correo"
-            placeholder="juan.perez@universidad.edu.co"
-            value={formData.correo}
-            onChange={handleChange}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        <FormInput
+          label="Correo Electrónico"
+          id="correo"
+          name="correo"
+          type="email"
+          placeholder="juan.perez@universidad.edu.co"
+          value={formData.correo}
+          onChange={handleChange}
+          disabled={cargando}
+          required
+        />
 
-        {/* Campo Contraseña */}
-        <div className="form-group">
-          <label htmlFor="password" className="form-label">
-            Contraseña
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Mínimo 6 caracteres"
-            value={formData.password}
-            onChange={handleChange}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        <FormInput
+          label="Contraseña"
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Mínimo 6 caracteres"
+          value={formData.password}
+          onChange={handleChange}
+          disabled={cargando}
+          required
+        />
 
-        {/* Campo Confirmar Contraseña */}
-        <div className="form-group">
-          <label htmlFor="confirmPassword" className="form-label">
-            Confirmar Contraseña
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            placeholder="Repite la contraseña"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        <FormInput
+          label="Confirmar Contraseña"
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          placeholder="Repite la contraseña"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          disabled={cargando}
+          required
+        />
 
         {/* Botón de Registro */}
         <button type="submit" className="btn-primary" disabled={cargando}>

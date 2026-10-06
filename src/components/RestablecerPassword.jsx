@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import FormInput from './FormInput';
+import AlertMessage from './AlertMessage';
 
 /**
  * Componente: RestablecerPassword
@@ -9,6 +11,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
  *  - Hook useSearchParams para capturar el token de la URL (?token=...).
  *  - Hook useEffect para verificar la validez del token en el backend al cargar la página.
  *  - Vinculación estricta: solo se actualiza la cuenta asociada a dicho token.
+ *  - Uso de componentes reutilizables con Props (FormInput, AlertMessage).
  */
 export default function RestablecerPassword() {
   const [searchParams] = useSearchParams();
@@ -44,8 +47,7 @@ export default function RestablecerPassword() {
     const verificarToken = async () => {
       try {
         setVerificando(true);
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-        const respuesta = await fetch(`${API_URL}/api/verificar-token/${token}`);
+        const respuesta = await fetch(`http://localhost:3000/api/verificar-token/${token}`);
         const datos = await respuesta.json();
 
         if (!respuesta.ok || !datos.valido) {
@@ -92,8 +94,7 @@ export default function RestablecerPassword() {
       setError('');
       setMensajeExito('');
 
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const respuesta = await fetch(`${API_URL}/api/restablecer-password`, {
+      const respuesta = await fetch('http://localhost:3000/api/restablecer-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,7 +140,8 @@ export default function RestablecerPassword() {
   if (!tokenValido) {
     return (
       <div className="auth-card text-center">
-        <div className="alert alert-error">{error || 'Enlace no válido o expirado.'}</div>
+        {/* AlertMessage recibe por prop el mensaje de error */}
+        <AlertMessage tipo="error" mensaje={error || 'Enlace no válido o expirado.'} />
         <h2>Enlace no disponible</h2>
         <p className="auth-subtitle" style={{ marginTop: '0.5rem' }}>
           Este enlace es inválido, ya fue utilizado o han pasado más de 15 minutos desde que fue generado.
@@ -172,51 +174,41 @@ export default function RestablecerPassword() {
         </div>
       </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {mensajeExito && <div className="alert alert-success">{mensajeExito}</div>}
+      {/* AlertMessage recibe por prop 'tipo' y 'mensaje' para mostrar error o éxito */}
+      <AlertMessage tipo="error" mensaje={error} />
+      <AlertMessage tipo="exito" mensaje={mensajeExito} />
 
       <form onSubmit={handleSubmit} className="auth-form" noValidate>
-        {/* Campo Nueva Contraseña */}
-        <div className="form-group">
-          <label htmlFor="password" className="form-label">
-            Nueva Contraseña
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Mínimo 6 caracteres"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (error) setError('');
-            }}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        {/* FormInput recibe sus datos por props: label, id, name, type, placeholder, value, onChange, disabled */}
+        <FormInput
+          label="Nueva Contraseña"
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Mínimo 6 caracteres"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (error) setError('');
+          }}
+          disabled={cargando}
+          required
+        />
 
-        {/* Campo Confirmar Contraseña */}
-        <div className="form-group">
-          <label htmlFor="confirmPassword" className="form-label">
-            Confirmar Nueva Contraseña
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            placeholder="Repite la nueva contraseña"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              if (error) setError('');
-            }}
-            className="form-input"
-            disabled={cargando}
-            required
-          />
-        </div>
+        <FormInput
+          label="Confirmar Nueva Contraseña"
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          placeholder="Repite la nueva contraseña"
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            if (error) setError('');
+          }}
+          disabled={cargando}
+          required
+        />
 
         <button type="submit" className="btn-primary" disabled={cargando}>
           {cargando ? 'Actualizando contraseña...' : 'Guardar Nueva Contraseña'}
